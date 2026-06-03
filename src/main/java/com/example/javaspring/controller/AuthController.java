@@ -6,6 +6,7 @@ import com.example.javaspring.dto.response.AuthResponse;
 import com.example.javaspring.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
+import com.example.javaspring.dto.response.LogoutResponse;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -25,5 +26,10 @@ public class AuthController {
     @PostMapping("/login")
     public AuthResponse login(@Valid @RequestBody LoginRequest request) {
         return authService.login(request);
+    }
+
+    @PostMapping("/logout")
+    public LogoutResponse logout(){
+        return authService.logout();
     }
 }

@@ -3,8 +3,10 @@ package com.example.javaspring.service.impl;
 import com.example.javaspring.dto.request.LoginRequest;
 import com.example.javaspring.dto.request.RegisterRequest;
 import com.example.javaspring.dto.response.AuthResponse;
+import com.example.javaspring.dto.response.LogoutResponse;
 import com.example.javaspring.entity.User;
 import com.example.javaspring.service.AuthService;
+import com.example.javaspring.service.JwtService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -15,12 +17,14 @@ import java.util.List;
 public class AuthServiceImpl implements AuthService {
 
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     private final List<User> users = new ArrayList<>();
     private Long currentId = 1L;
 
-    public AuthServiceImpl(PasswordEncoder passwordEncoder) {
+    public AuthServiceImpl(PasswordEncoder passwordEncoder, JwtService jwtService) {
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     @Override
@@ -45,10 +49,12 @@ public class AuthServiceImpl implements AuthService {
         currentId++;
 
         return new AuthResponse(
+                true,
                 user.getId(),
                 user.getName(),
                 user.getEmail(),
-                "Đăng ký thành công"
+                "Đăng ký thành công",
+                null
         );
     }
 
@@ -68,11 +74,24 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Email hoặc mật khẩu không đúng");
         }
 
+        String accessToken = jwtService.generateToken(
+                user.getId(),
+                user.getEmail(),
+                user.getName()
+        );
+
         return new AuthResponse(
+                true,
                 user.getId(),
                 user.getName(),
                 user.getEmail(),
-                "Đăng nhập thành công"
+                "Đăng nhập thành công",
+                accessToken
         );
+    }
+
+    @Override
+    public LogoutResponse logout() {
+        return new LogoutResponse(true, "Đăng xuất thành công");
     }
 }
